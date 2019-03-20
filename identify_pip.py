@@ -6,7 +6,7 @@ Minimalistic implementation of the Identification of Perceptually Important Poin
 '''
 
 class Pip(object):
-    def __init__(self,data,imp_count):
+    def __init__(self):
         '''Initializes a Identification Machine of Perceptually Important Points
 
         Data is a two-dimention array(n*m) which contains n time series whose dimention is m
@@ -20,9 +20,9 @@ class Pip(object):
         imp_count:int
              Dimention of return time series
         '''
-        self.data=data
-        self._check_imp_count(imp_count)
-        self.imp_count=imp_count
+        #self.data=data
+        #self._check_imp_count(imp_count)
+        #self.imp_count=imp_count
 
     def _check_imp_count(self,imp_count):
         m=self.data.shape[1]
@@ -33,7 +33,7 @@ class Pip(object):
             raise ValueError('imp_count(%d) should be more than 2' % (imp_count))
         return None
 
-    def get_single_pip(t):
+    def get_single_pip(self,t):
         if t is None:
             return None
         m=len(t)
@@ -70,8 +70,24 @@ class Pip(object):
                     end_index[i]=max_index
         return imp_point_index
 
-    def get_all_pip(self):
-        data_pip=[]
+    def plot_single_imp(self,orgin_t,import_t_index,first_count):
+        if first_count>=len(orgin_t):
+            raise ValueError('first_count should less than length of orgin_t')
+        import_t_index = import_t_index[:first_count]
+        import_t_index.append(0)
+        import_t_index.append(len(orgin_t)-1)
+        import_t_index.sort()
+        import_t_val = []
+        for i in import_t_index:
+            import_t_val.append(t[i])
+        plt.plot(t)
+        plt.plot(import_t_index, import_t_val, '--ro')
+
+    def get_all_pip(self,data):
+        result=[]
+        for t in data:
+            result.append(self.get_single_pip(t))
+        return result
 
 
 
@@ -82,17 +98,18 @@ class Pip(object):
 
 if __name__=='__main__':
     t=[1, 3, 7, -5, -8, 5, 3, 7, 10, 12, 4, 8, 10,15,1,13,-7,-5,-1,6,7,-8,12,10,8,5,7,4,12,15,18,9]
-    m=len(t)
-    import_t_index=get_pip(t)
-    import_t_index=import_t_index[:7]
-    import_t_index.append(0)
-    import_t_index.append(m-1)
-    import_t_index.sort()
-    import_val=[]
-    for i in import_t_index:
-        import_val.append(t[i])
-    plt.plot(t)
-    plt.plot(import_t_index,import_val,'--ro')
+    data=[[1, 3, 7, -5, -8, 5, 3, 7, 10, 12, 4, 8, 10,15,1,13,-7,-5,-1,6,7,-8,12,10,8,5,7,4,12,15,18,9],
+          [1, 3, 7, -5, 10, 5, 3, 7, 7, 12, 4, 8, 10, 12, 1, -4, -7, -5, -1, 6, 7, 9, 12, 10, 8, 2, 7, 4, 5, 4, 2,
+           9],
+          [1, 3, 7, -5, 9, 5, 12, 7, 10, 4, 4, 8, 9, 7, 1, -5, -7, -5, -1, 6, 10, 11, 12, 10, 8, 5, 7, 4, 12, 15, 18,
+           9]]
+    pi=Pip()
+    import_t_index_data=pi.get_all_pip(data)
+    for i in range(3):
+        t=data[i]
+        import_t_index=import_t_index_data[i]
+        pi.plot_single_imp(t,import_t_index,5)
     plt.show()
+
 
 
